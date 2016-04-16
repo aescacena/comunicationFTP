@@ -3,51 +3,58 @@ Created on 16 de abr. de 2016
 
 @author: aescacena
 '''
+
 #librerias propias de python
 import ftplib
 import os
-import argparse
-import getpass
 
 #librerias propias mias
 from readFile import getCredencialesFTP
-from ast import parse
 
-credenciales = getCredencialesFTP('credenciales.txt')
-SERVIDOR_FTP = credenciales[0][1]
-USUARIO = credenciales[1][1]
-CONTRASENA = credenciales[2][1]
-ARCHIVO = 'Documento.txt' 
-
-def subir_ftp(servidor, usuario, contrasena, archivo):
-    print "Conectando con servidor..."
-    ftp = ftplib.FTP(str(servidor))
+class clienteFTP:
     
-    print "Iniciado sesion como usuario: %s" %usuario
-    ftp.login(str(usuario), str(contrasena))
+    def __init__(self, credenciales):
+        #Con [:-1] eliminamos el ultimo caracter que es el salto de linea
+        self.servidor_ftp = credenciales[0][1][:-1]
+        self.usuario = credenciales[1][1][:-1]
+        self.contrasena = credenciales[2][1][:-1]
+        self.archivo = 'Documento.txt' 
+        
+        print credenciales
+        print self.usuario
+        print self.contrasena
+        print self.archivo 
     
-    extension = os.path.splitext(archivo)[1]
+    def subir_ftp(self):
+        print "Conectando con servidor..."
+        self.ftp = ftplib.FTP(self.servidor_ftp)
+        
+        print "Iniciado sesion como usuario: %s" %self.usuario
+        self.ftp.login(self.usuario, self.contrasena)
+        
+        extension = os.path.splitext(self.archivo)[1]
+        
+        if extension in (".txt", ".htm", ".html"):
+            self.ftp.storlines("STOR " + self.archivo, open(self.archivo))
+        else:
+            self.ftp.storbinary("STOR "+ self.archivo, open(self.archivo, "rb"), 1024)
+        
+        print "Archivo %s subido con exito" %self.archivo
+        
+    def cliente_ftp_conexion(self, servidor, nombre_usuario, correo):
+        #hacemos la apertura de la conexion
+        ftp = ftplib.FTP(servidor, nombre_usuario, correo)
     
-    if extension in (".txt", ".htm", ".html"):
-        ftp.storlines("STOR " + archivo, open(archivo))
-    else:
-        ftp.storbinary("STOR "+ archivo, open(archivo, "rb"), 1024)
+        #Listamos los archivos del directorio /pub
+        ftp.cwd("/pub")
+        print "Archivos disponibles en %s:" %servidor
+        archivos = ftp.dir()
+        print archivos
+        ftp.quit()
     
-    print "Archivo %s subido con exito" %archivo
-    
-def cliente_ftp_conexion(servidor, nombre_usuario, correo):
-    #hacemos la apertura de la conexion
-    ftp = ftplib.FTP(servidor, nombre_usuario, correo)
-
-    #Listamos los archivos del directorio /pub
-    ftp.cwd("/pub")
-    print "Archivos disponibles en %s:" %servidor
-    archivos = ftp.dir()
-    print archivos
-    ftp.quit()
-
 if __name__ == '__main__':
-    subir_ftp(SERVIDOR_FTP, USUARIO, CONTRASENA, ARCHIVO)
-    
-    
-    
+    cliente = clienteFTP(getCredencialesFTP('credenciales.txt'))
+    cliente.subir_ftp()
+        
+        
+        
