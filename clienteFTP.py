@@ -11,50 +11,52 @@ import os
 #librerias propias mias
 from readFile import getCredencialesFTP
 
-class clienteFTP:
+class clientFTP:
     
-    def __init__(self, credenciales):
+    def __init__(self, credentials):
         #Con [:-1] eliminamos el ultimo caracter que es el salto de linea
-        self.servidor_ftp = credenciales[0][1][:-1]
-        self.usuario = credenciales[1][1][:-1]
-        self.contrasena = credenciales[2][1][:-1]
-        self.archivo = 'Documento.txt' 
+        self.server_ftp = credentials[0][1][:-1]
+        self.user = credentials[1][1][:-1]
+        self.password = credentials[2][1][:-1]
+        self.file = 'Documento.txt' 
+        self.ftp = None;
         
-        print credenciales
-        print self.usuario
-        print self.contrasena
-        print self.archivo 
-    
-    def subir_ftp(self):
+    def upload_ftp(self):
         print "Conectando con servidor..."
-        self.ftp = ftplib.FTP(self.servidor_ftp)
+        self.ftp = ftplib.FTP(self.server_ftp)
         
-        print "Iniciado sesion como usuario: %s" %self.usuario
-        self.ftp.login(self.usuario, self.contrasena)
+        print "Iniciado sesion como usuario: %s" %self.user
+        self.ftp.login(self.user, self.password)
         
-        extension = os.path.splitext(self.archivo)[1]
+        extension = os.path.splitext(self.file)[1]
         
         if extension in (".txt", ".htm", ".html"):
-            self.ftp.storlines("STOR " + self.archivo, open(self.archivo))
+            self.ftp.storlines("STOR " + self.file, open(self.file))
         else:
-            self.ftp.storbinary("STOR "+ self.archivo, open(self.archivo, "rb"), 1024)
+            self.ftp.storbinary("STOR "+ self.file, open(self.file, "rb"), 1024)
         
-        print "Archivo %s subido con exito" %self.archivo
+        print "file %s subido con exito" %self.file
         
-    def cliente_ftp_conexion(self, servidor, nombre_usuario, correo):
+    def FTP_ListFile(self):
         #hacemos la apertura de la conexion
-        ftp = ftplib.FTP(servidor, nombre_usuario, correo)
-    
-        #Listamos los archivos del directorio /pub
-        ftp.cwd("/pub")
-        print "Archivos disponibles en %s:" %servidor
-        archivos = ftp.dir()
-        print archivos
-        ftp.quit()
-    
+        self.ftp = ftplib.FTP(self.server_ftp)
+        self.ftp.login(self.user, self.password)
+        
+        print "Ficheros disponibles en %s:" %self.server_ftp
+        files = self.ftp.dir()
+        print files
+        self.ftp.quit()
+        
+    def getCommandsFTP(self):
+        self.ftp = ftplib.FTP(self.server_ftp)
+        self.ftp.login(self.user, self.password)
+        return self.ftp.sendcmd('help')
+        
 if __name__ == '__main__':
-    cliente = clienteFTP(getCredencialesFTP('credenciales.txt'))
-    cliente.subir_ftp()
+    client = clientFTP(getCredencialesFTP('credenciales.txt'))
+    client.upload_ftp()
+    client.FTP_ListFile()
+    print client.getCommandsFTP()
         
         
         
