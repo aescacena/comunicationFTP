@@ -11,15 +11,27 @@ import os
 #librerias propias mias
 from readFile import getCredencialesFTP
 
-class clientFTP:
+class clientFTP(object):
     
-    def __init__(self, credentials):
-        #Con [:-1] eliminamos el ultimo caracter que es el salto de linea
-        self.server_ftp = credentials[0][1][:-1]
-        self.user = credentials[1][1][:-1]
-        self.password = credentials[2][1][:-1]
+    def __init__(self):
+        self.server_ftp = None
+        self.user = None
+        self.password = None
         self.file = 'Documento.txt' 
         self.ftp = None;
+        
+    def credentials_FTP(self, name_file):
+        #Con [:-1] eliminamos el ultimo caracter que es el salto de linea
+        try:
+            credentials = getCredencialesFTP(name_file)
+            self.server_ftp = credentials[0][1][:-1]
+            self.user = credentials[1][1][:-1]
+            self.password = credentials[2][1][:-1]
+            self.file = 'Documento.txt' 
+            self.ftp = None;
+            return True
+        except IOError:
+            return False
         
     def upload_ftp(self):
         print "Conectando con servidor..."
