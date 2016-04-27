@@ -32,16 +32,14 @@ class Menu(object):
         for number, option in enumerate(self.options, 1) :
             self.presentation += "{0}. {1}\n".format(number, option)
             
-    def menu_login(self):
-        print "Teclea fichero de credenciales"
-        return raw_input(self.prompt)
-    
-    def connect_FTP(self):
+    def set_credentials_FTP(self):
+        print "Teclea fichero de credenciales \n"
+        
         while True:
-            if self.client.credentials_FTP(my_menu.menu_login()):
+            if self.client.credentials_FTP(raw_input(my_menu.prompt)):
                 break
             else:
-                print "Credenciales incorrectas\n"
+                print "Credenciales incorrectas, vuelve a intentarlo\n"
                     
     def ask_operands(self):
         while True:
@@ -57,7 +55,8 @@ class Menu(object):
         return op
         
     def list_files(self): 
-        raw_input("Funcion lista ficheros")
+#         raw_input("Funcion lista ficheros")
+        self.client.FTP_ListFile()
     
     def delete_file(self): 
         raw_input("Funcion elimina fichero")
@@ -75,8 +74,8 @@ class Menu(object):
 if __name__== "__main__":
     my_menu = Menu()
     
-    my_menu.connect_FTP()
-            
+    my_menu.set_credentials_FTP()
+    
     while True:
         print my_menu.presentation
             
