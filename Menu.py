@@ -55,14 +55,13 @@ class Menu(object):
         return op
         
     def list_files(self): 
-#         raw_input("Funcion lista ficheros")
         self.client.FTP_ListFile()
     
     def delete_file(self): 
         raw_input("Funcion elimina fichero")
 
     def upload_file(self): 
-        raw_input("Funcion subir fichero")
+        self.client.upload_ftp()
     
     def edit_file(self):
         raw_input("Funcion editar fichero")
